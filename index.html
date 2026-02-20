@@ -7,11 +7,6 @@
 <meta name="theme-color" content="#03040a">
 <title>Radar de Editais — Virtus et Honor</title>
 
-<!--
-  Script crítico: define o background ANTES do CSS carregar.
-  - Se o documento estiver em top (aberto diretamente), força fundo escuro.
-  - Se estiver em iframe (embed), força transparência para integrar com host.
--->
 <script>
   (function earlyBgSetup(){
     try {
@@ -21,13 +16,10 @@
         document.documentElement.style.setProperty('background-color','transparent','important');
         document.documentElement.dataset.embed = 'true';
       } else {
-        // opened directly: enforce dark background to avoid light flash
         document.documentElement.style.background = '#03040a';
         document.documentElement.style.setProperty('background-color','#03040a','important');
       }
-    } catch(e){
-      // silently fail
-    }
+    } catch(e){}
   })();
 </script>
 
@@ -52,104 +44,75 @@
     --font-sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto, "Helvetica Neue", Arial, sans-serif;
   }
 
-  /* reset + defensive transparency rules */
   *,*::before,*::after{box-sizing:border-box}
   html,body{
-    width:100%;
-    height:100%;
-    margin:0 !important;
-    padding:0 !important;
-    color:#e6e6e6;
-    font-family:var(--font-sans);
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    background: transparent; /* CSS fallback; early script above overrides for direct view */
+    width:100%;height:100%;margin:0 !important;padding:0 !important;
+    color:#e6e6e6;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;background: transparent;
   }
-
-  /* If opened directly (not embed), early script will set html background to #03040a.
-     For safety, provide a CSS fallback for top-level too via attribute check */
   html:not([data-embed]) body {
     background: linear-gradient(180deg,var(--bg-start),var(--bg-end));
     min-height:100vh;
   }
-
-  /* If embedded (documentElement has data-embed), keep transparent and avoid outer padding */
   html[data-embed] body {
-    background: transparent;
-    min-height:0;
+    background: transparent; min-height:0;
   }
 
-  /* main wrapper - no outer padding that could produce border */
   #radarWrap{width:100%;max-width:var(--max-default);margin:0 auto;padding:0;transition:max-width var(--transition) ease}
-  #radarWrap.wide{max-width:var(--max-wide)}
+  #radar{background: linear-gradient(180deg,var(--bg-start),var(--bg-end));border:1px solid rgba(255,255,255,.03);padding:16px;border-radius:14px;box-shadow:0 8px 30px rgba(2,6,23,.6)}
 
-  /* panel */
-  #radar{
-    background: linear-gradient(180deg,var(--bg-start),var(--bg-end));
-    border:1px solid rgba(255,255,255,.03);
-    padding:16px;
-    border-radius:14px;
-    box-shadow:0 8px 30px rgba(2,6,23,.6);
-  }
-
-  /* header */
   .header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
   .title{font-weight:800;font-size:18px;background:linear-gradient(90deg,var(--accent-1),var(--accent-2),var(--accent-3));-webkit-background-clip:text;color:transparent}
   .subtitle{font-size:12px;color:var(--muted)}
   .controls{display:flex;gap:8px;align-items:center}
-
   .ctrl-btn{background:transparent;border:1px solid rgba(255,255,255,.04);padding:6px 10px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:13px}
   .ctrl-btn:focus{outline:3px solid rgba(139,233,253,.12);outline-offset:3px}
   .ctrl-btn:hover{border-color:rgba(255,255,255,.08)}
 
-  /* grid */
   .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;align-items:start}
-  .card{grid-column:span 12;background:linear-gradient(145deg,var(--card-start),var(--card-end));border:1px solid rgba(255,255,255,.03);padding:14px;border-radius:var(--radius);position:relative;cursor:pointer;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease;user-select:none}
-  .card:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 12px 36px rgba(0,0,0,.5);border-color:rgba(255,255,255,.06)}
-  #radarWrap.wide .card.half{grid-column:span 6}
-  #radarWrap.wide .card.full{grid-column:span 12}
+  .section-title{grid-column:span 12;color:var(--muted);font-size:13px;margin-top:6px;margin-bottom:4px}
 
+  .card{grid-column:span 12;background:linear-gradient(145deg,var(--card-start),var(--card-end));border:1px solid rgba(255,255,255,.03);padding:12px;border-radius:var(--radius);position:relative;cursor:pointer;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease;user-select:none;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(0,0,0,.5);border-color:rgba(255,255,255,.06)}
+  .card.small{padding:10px}
   .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:6px 0 0 6px}
   .alvo::before{background:var(--danger)} .obs::before{background:var(--warn)} .reta::before{background:var(--info)}
 
-  .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .card .left{display:flex;flex-direction:column;gap:4px}
   .name{font-weight:700;font-size:15px}
   .meta{font-size:12px;color:var(--muted)}
-  .body{margin-top:8px;font-size:13px;color:rgba(230,230,230,.92);line-height:1.45}
-
-  .pill{font-size:11px;padding:4px 8px;border-radius:999px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.03)}
+  .pill{font-size:11px;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.03);white-space:nowrap}
   .pill.previsto{color:var(--accent-1);border-color:var(--accent-1)} .pill.autorizado{color:var(--success);border-color:var(--success)}
   .pill.pldo{color:var(--warn);border-color:var(--warn)} .pill.longo{color:var(--info);border-color:var(--info)}
+  .tag-small{font-size:11px;color:var(--muted)}
 
   .note{margin-top:12px;font-size:12px;color:var(--muted);opacity:.95}
 
-  /* modal */
-  .modal-bg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9999;background:rgba(2,6,23,.6);backdrop-filter:blur(4px)}
-  .modal-bg.open{display:flex}
-  .modal{width:100%;max-width:980px;background:linear-gradient(180deg,#030512,#081026);border-radius:12px;padding:20px;border:1px solid rgba(255,255,255,.04);box-shadow:0 30px 80px rgba(2,6,23,.6);transform:translateY(6px) scale(.98);opacity:0;transition:transform var(--transition) ease,opacity var(--transition) ease;max-height:86vh;overflow:auto}
-  .modal.open{transform:translateY(0) scale(1);opacity:1}
-  .modal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-  .modal h3{font-size:18px;margin-bottom:6px}
-  .modal .subtitle{font-size:12px;color:var(--muted)}
-  .modal-body{margin-top:12px;font-size:14px;color:#e6e6e6;line-height:1.5;white-space:pre-wrap}
-  .modal .fechar{background:transparent;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:6px;border-radius:8px}
-  .modal .fechar:hover{color:#fff}
-
-  @media (max-width:980px){
-    #radarWrap{max-width:100%}
-    #radarWrap.wide{max-width:100%}
-    #radar{padding:12px}
-    .card{padding:12px}
-    .modal{max-width:94%;padding:16px}
-  }
+  /* timeline mode */
+  .timeline-wrap{grid-column:span 12;display:flex;flex-direction:column;gap:12px;align-items:stretch}
+  .timeline-bar{height:36px;background:linear-gradient(90deg,rgba(255,255,255,.03),rgba(255,255,255,.02));border-radius:8px;position:relative;padding:6px}
+  .timeline-line{position:absolute;left:8px;right:8px;top:50%;height:4px;background:rgba(255,255,255,.05);transform:translateY(-50%);border-radius:4px}
+  .marker{position:absolute;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px}
+  .marker .dot{width:10px;height:10px;border-radius:999px;background:var(--accent-1);border:2px solid rgba(0,0,0,.35)}
+  .marker .label{font-size:11px;color:var(--muted);white-space:nowrap;margin-top:6px}
 
   .sr-only{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   iframe,embed,object{background:transparent !important}
+
+  @media (min-width:980px){
+    /* when wide enough, cards in groups can be two-column for visual density */
+    #radarWrap.grouped .grid .card.half{grid-column:span 6}
+  }
+  @media (max-width:980px){
+    #radar{padding:12px}
+    .card{padding:12px}
+    .pill{padding:5px 8px}
+  }
 </style>
 </head>
 
 <body>
-<div id="radarWrap" role="region" aria-label="Radar de Editais — Virtus et Honor">
+<div id="radarWrap" class="grouped" role="region" aria-label="Radar de Editais — Virtus et Honor">
   <div id="radar" role="application" aria-describedby="radar-note">
     <div class="header">
       <div>
@@ -158,13 +121,15 @@
       </div>
 
       <div class="controls" role="toolbar" aria-label="Controles do widget">
-        <button id="toggleWide" class="ctrl-btn" title="Alternar largura (W)">↔ Largura</button>
+        <button id="toggleLayout" class="ctrl-btn" title="Mudar modo: Agrupar / Linha do Tempo">Modo: Agrupar</button>
         <button id="helpBtn" class="ctrl-btn" title="Ajuda (H)">i</button>
         <button id="copyLink" class="ctrl-btn" title="Copiar link público">🔗 Copiar link</button>
       </div>
     </div>
 
-    <div class="grid" id="grid" role="list"></div>
+    <div class="grid" id="grid" role="list" aria-live="polite">
+      <!-- Sections and cards rendered by JS -->
+    </div>
 
     <div class="note" id="radar-note">Regra: monitorar apenas <strong>autorização</strong>, <strong>comissão</strong>, <strong>contrato de banca</strong> ou <strong>dotação LOA/LDO</strong>. O resto é intenção.</div>
   </div>
@@ -187,75 +152,305 @@
 </div>
 
 <script>
-/* === Conteúdo (template literals) === */
+/* ========= CONTENT (full descriptions sourced from your text) ========= */
 const contentRepo = {
-  pmgo:{title:"PM-GO — Soldado",subtitle:"Prioridade Máxima",html:`<strong>👁‍🗨 Em Alvo</strong>\n- Edital provável entre <strong>julho e outubro de 2026</strong>.\n- Pico: <strong>set/2026</strong>.\n- Prova: <strong>nov/2026</strong>.`},
-  prf:{title:"PRF — Policial Rodoviário Federal",subtitle:"Federal",html:`- Concurso 2021 prorrogado até <strong>jun/2026</strong>.\n- Novo edital provável no 2º semestre de 2026.`},
-  pcmt:{title:"PC-MT",subtitle:"PLDO 2026",html:`Previsto no PLDO 2026. Edital projetado 2º semestre 2026.`},
-  pmt:{title:"PM-MT",subtitle:"Orçamento",html:`Previsto no PLDO; depende de dotação.`},
-  pcdf:{title:"PC-DF",subtitle:"Autorizado",html:`105 vagas + 210 CR. Edital entre 2026–2027.`},
-  pcpr:{title:"PC-PR",subtitle:"Autorizado",html:`Autorizado (fev/2026). Comissão formada.`},
-  pf:{title:"PF",subtitle:"Longo prazo",html:`Próximo grande edital provável 2028+.`},
-  pcgo:{title:"PC-GO",subtitle:"Em estudo",html:`Em estudo; possibilidade 2026–2027.`},
-  pcto:{title:"PC-TO",subtitle:"Movimentações",html:`Comissões e movimentações indicam 2026–2027.`},
-  help_custom:{title:"Ajuda",subtitle:"Como usar",html:`- Clique em um card para abrir o resumo.\n- Fechar modal: ESC, clicar fora ou no ✕.\n- W: alternar largura. H: abrir ajuda.`}
+  pmgo: {
+    title: "PM-GO — Soldado",
+    subtitle: "👁‍🗨 Em Alvo (Prioridade Máxima)",
+    html: `
+<strong>👁‍🗨 Em Alvo (Prioridade Máxima)</strong>
+
+- PM-GO — Próximo edital de Soldado tende a sair <strong>entre julho e outubro de 2026</strong>, com <strong>pico de probabilidade em setembro de 2026</strong> e prova em <strong>novembro de 2026</strong>.
+
+Observações:
+• Priorizar atos formais: autorização, portaria de comissão, contrato de banca, LOA/LDO.
+• Requisitos finais dependem do ato — acompanhar DO estadual.
+` ,
+    // proximity date used for timeline sorting (approximate)
+    approxDateISO: "2026-09-15"
+  },
+
+  prf: {
+    title: "PRF — Policial Rodoviário Federal",
+    subtitle: "👁‍🗨 Em Alvo (Prioridade Máxima)",
+    html: `
+- PRF — Concurso 2021 prorrogado até <strong>junho de 2026</strong>, o que empurra o novo edital para <strong>após essa data</strong>.
+- Cenário mais provável é edital no <strong>2º semestre de 2026</strong> (set–dez) com provas no <strong>início de 2027</strong>, considerando pedidos de <strong>511 vagas</strong> (263 policiais + 248 administrativos) e solicitações maiores (até 5.137 vagas) em análise.
+
+Monitorar:
+• Extratos no Ministério da Justiça; autorização no DOU; contratos de banca.
+`,
+    approxDateISO: "2026-10-01"
+  },
+
+  pcmt: {
+    title: "PC-MT — Investigador / Escrivão",
+    subtitle: "⚠️ Em Observação",
+    html: `
+- PC-MT — Novo concurso previsto no <strong>PLDO 2026</strong>, com edital projetado para <strong>o segundo semestre de 2026</strong>, após o fim da validade do último concurso (Investigador/Escrivão válido até junho de 2026).
+
+Pontos de atenção:
+• Observar publicação da portaria e comissão no Diário Oficial do Estado.
+`,
+    approxDateISO: "2026-08-01"
+  },
+
+  pmt: {
+    title: "PM-MT — Soldado / Aluno Oficial",
+    subtitle: "⚠️ Em Observação",
+    html: `
+- PM-MT — Concurso previsto no <strong>PLDO 2026</strong>, com vagas para <strong>Aluno Oficial e Soldado</strong>; expectativa de edital em <strong>2026</strong>, vinculado ao orçamento já sinalizado na Assembleia Legislativa.
+
+Pontos de ação:
+• Monitorar LOA/PLDO e pautas da Assembleia.
+`,
+    approxDateISO: "2026-06-01"
+  },
+
+  pcdf: {
+    title: "PC-DF — Perito / Papiloscopista / Perito Médico-Legista",
+    subtitle: "⚠️ Em Observação (Autorizado)",
+    html: `
+- PC-DF (Perito/Papiloscopista/Perito Médico-Legista) — Concurso <strong>autorizado</strong> com <strong>105 vagas + 210 CR</strong>, com forte expectativa de edital entre <strong>2026 e início de 2027</strong>.
+
+Checklist:
+• Verificar extrato de contratação de banca e requisitos por cargo (peritos exigem bacharelado/especialidade).
+`,
+    approxDateISO: "2026-11-15"
+  },
+
+  pcpr: {
+    title: "PC-PR — Delegado / Agente / Papiloscopista",
+    subtitle: "⚠️ Em Observação (Autorizado)",
+    html: `
+- PC-PR — Autorizado oficialmente com comissão formada para Delegado, Agente e Papiloscopista. Previsão de <strong>edital 2º semestre de 2026</strong>.
+
+Observações:
+• Delegado: bacharel em Direito; Agente/Papiloscopista: ver ato para escolaridade específica.
+`,
+    approxDateISO: "2026-09-01"
+  },
+
+  pf: {
+    title: "PF — Polícia Federal",
+    subtitle: "❄️ Na Retaguarda",
+    html: `
+- PF — Próximo grande concurso de nível nacional <strong>tende a ficar para 2028 em diante</strong>, após o ciclo atual de convocações e a priorização, no curto prazo, de PRF e polícias penais estaduais.
+
+Monitore:
+• LOA/LOA suplementar e comunicados oficiais do MJSP.
+`,
+    approxDateISO: "2028-01-01"
+  },
+
+  pcgo: {
+    title: "PC-GO — Polícia Civil de Goiás",
+    subtitle: "❄️ Na Retaguarda",
+    html: `
+- PC-GO — Novo concurso em estudos, mas sem estrutura avançada como PMGO; cenário mais realista é edital <strong>a partir de 2026/2027</strong>, após consolidação dos concursos da PMGO e ajustes orçamentários estaduais.
+`,
+    approxDateISO: "2026-12-01"
+  },
+
+  pcto: {
+    title: "PC-TO — Polícia Civil do Tocantins",
+    subtitle: "❄️ Na Retaguarda",
+    html: `
+- PC TO (Polícia Civil do Tocantins) — Comissão e movimentações apontam chances de edital <strong>em 2026/2027</strong>.
+
+Atenção:
+• Conferir portarias de comissão e extratos de contrato de banca.
+`,
+    approxDateISO: "2026-12-15"
+  },
+
+  help_custom: {
+    title: "Ajuda — Radar",
+    subtitle: "Operação rápida",
+    html: `
+- Clique em um card para abrir a descrição completa do concurso.
+- Fechar modal: ESC, clicar fora ou no ✕.
+- Pressione "M" para alternar entre Modo Agrupado e Modo Linha do Tempo.
+- Pressione "H" para abrir esta ajuda.
+`
+  }
 };
 
-/* === Cards dataset === */
+
+/* ========= Cards metadata (category, pill label, visual class) ========= */
 const cardsData = [
-  {key:'pmgo',class:'alvo full',pill:'PREVISTO'},
-  {key:'prf',class:'alvo half',pill:'MÉDIO PRAZO'},
-  {key:'pcmt',class:'obs half',pill:'PLDO'},
-  {key:'pmt',class:'obs half',pill:'PLDO'},
-  {key:'pcdf',class:'obs half',pill:'AUTORIZADO'},
-  {key:'pcpr',class:'obs half',pill:'AUTORIZADO'},
-  {key:'pf',class:'reta half',pill:'LONGO PRAZO'},
-  {key:'pcgo',class:'reta half',pill:'ESTUDO'},
-  {key:'pcto',class:'reta half',pill:'COMISSÃO'}
+  {key:'pmgo', category:'alvo', css:'alvo full', pill:'PREVISTO'},
+  {key:'prf',  category:'alvo', css:'alvo half', pill:'MÉDIO PRAZO'},
+  {key:'pcmt', category:'obs',  css:'obs half',  pill:'PLDO'},
+  {key:'pmt',  category:'obs',  css:'obs half',  pill:'PLDO'},
+  {key:'pcdf', category:'obs',  css:'obs half',  pill:'AUTORIZADO'},
+  {key:'pcpr', category:'obs',  css:'obs half',  pill:'AUTORIZADO'},
+  {key:'pf',   category:'reta', css:'reta half',  pill:'LONGO PRAZO'},
+  {key:'pcgo', category:'reta', css:'reta half',  pill:'ESTUDO'},
+  {key:'pcto', category:'reta', css:'reta half',  pill:'COMISSÃO'}
 ];
 
+/* DOM refs */
 const grid = document.getElementById('grid');
 const modalBg = document.getElementById('modalBg');
 const modal = modalBg.querySelector('.modal');
 const modalTitle = document.getElementById('modalTitle');
 const modalSub = document.getElementById('modalSub');
 const modalBody = document.getElementById('modalBody');
-const toggleWideBtn = document.getElementById('toggleWide');
+const toggleLayoutBtn = document.getElementById('toggleLayout');
 const helpBtn = document.getElementById('helpBtn');
 const copyLinkBtn = document.getElementById('copyLink');
+const radarWrap = document.getElementById('radarWrap');
 
-function stripTagsForPreview(html){
-  const tmp = document.createElement('div'); tmp.innerHTML = html;
-  const text = tmp.textContent || tmp.innerText || '';
-  return text.length > 140 ? text.slice(0,137)+'...' : text;
+/* helper: format date for marker labels */
+function fmtMonth(d){
+  const months=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  return `${months[d.getMonth()]}/${d.getFullYear()}`;
 }
 
-function renderCards(){
+/* parse approx dates from contentRepo (fallback if missing) */
+function getApproxDate(key){
+  const rec = contentRepo[key];
+  if(rec && rec.approxDateISO) return new Date(rec.approxDateISO);
+  // fallback: far future
+  return new Date('2028-01-01');
+}
+
+/* months difference (approx) between now and date */
+function monthsDiffFromNow(date){
+  const now = new Date(2026,1,20); // fixed current date per your environment: 2026-02-20
+  const y = date.getFullYear() - now.getFullYear();
+  const m = date.getMonth() - now.getMonth();
+  const d = date.getDate() - now.getDate();
+  return y*12 + m + (d/30);
+}
+
+/* build grouped layout */
+function renderGrouped(){
   grid.innerHTML = '';
+  const groups = {
+    'alvo': {title:'👁‍🗨 Em Alvo (Prioridade Máxima)', items:[]},
+    'obs':  {title:'⚠️ Em Observação', items:[]},
+    'reta': {title:'❄️ Na Retaguarda (Monitoramento Estratégico)', items:[]}
+  };
   for(const item of cardsData){
-    const meta = contentRepo[item.key] || {title:item.key, subtitle:'', html:''};
-    const el = document.createElement('div');
-    el.className = `card ${item.class} card-click`;
-    el.setAttribute('role','listitem');
-    el.setAttribute('data-key', item.key);
-    el.tabIndex = 0;
-    el.innerHTML = `
-      <div class="head">
-        <div>
+    groups[item.category].items.push(item);
+  }
+  for(const key of ['alvo','obs','reta']){
+    const g = groups[key];
+    // section title
+    const sec = document.createElement('div');
+    sec.className = 'section-title';
+    sec.textContent = g.title;
+    grid.appendChild(sec);
+    // cards
+    for(const item of g.items){
+      const meta = contentRepo[item.key] || {title:item.key, subtitle:'', html:''};
+      const el = document.createElement('div');
+      el.className = `card ${item.css} card-click`;
+      el.setAttribute('data-key', item.key);
+      el.tabIndex = 0;
+      el.innerHTML = `
+        <div class="left">
           <div class="name">${meta.title}</div>
           <div class="meta">${meta.subtitle || ''}</div>
         </div>
-        <div><span class="pill">${item.pill || ''}</span></div>
-      </div>
-      <div class="body">${stripTagsForPreview(meta.html)}</div>
-    `;
-    el.addEventListener('click', ()=> openModal(item.key));
-    el.addEventListener('keydown', (e)=> { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openModal(item.key); }});
-    grid.appendChild(el);
+        <div>
+          <span class="pill ${pillClass(item.pill)}">${item.pill}</span>
+        </div>
+      `;
+      el.addEventListener('click', ()=> openModal(item.key));
+      el.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openModal(item.key);} });
+      grid.appendChild(el);
+    }
   }
 }
 
-/* Modal open/close and focus management */
+/* pill class map to color classes */
+function pillClass(label){
+  const map = {
+    'PREVISTO':'previsto',
+    'MÉDIO PRAZO':'previsto',
+    'PLDO':'pldo',
+    'AUTORIZADO':'autorizado',
+    'LONGO PRAZO':'longo',
+    'ESTUDO':'pldo',
+    'COMISSÃO':'pldo'
+  };
+  return map[label] || '';
+}
+
+/* build timeline layout */
+function renderTimeline(){
+  // compute months distance for each card
+  const withDates = cardsData.map(c=>{
+    const dt = getApproxDate(c.key);
+    const months = monthsDiffFromNow(dt);
+    return {...c, dt, months};
+  });
+  // sort ascending by months
+  withDates.sort((a,b)=> a.months - b.months);
+  grid.innerHTML = '';
+
+  // render cards in sorted order (minimal front)
+  for(const item of withDates){
+    const meta = contentRepo[item.key] || {title:item.key, subtitle:'', html:''};
+    const el = document.createElement('div');
+    el.className = `card ${item.css} card-click small`;
+    el.setAttribute('data-key', item.key);
+    el.tabIndex = 0;
+    el.innerHTML = `
+      <div class="left">
+        <div class="name">${meta.title}</div>
+        <div class="meta">${fmtMonth(item.dt)} • ${meta.subtitle || ''}</div>
+      </div>
+      <div>
+        <span class="pill ${pillClass(item.pill)}">${item.pill}</span>
+      </div>
+    `;
+    el.addEventListener('click', ()=> openModal(item.key));
+    el.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openModal(item.key);} });
+    grid.appendChild(el);
+  }
+
+  // timeline bar container
+  const wrap = document.createElement('div');
+  wrap.className = 'timeline-wrap';
+  // timeline chart
+  const bar = document.createElement('div');
+  bar.className = 'timeline-bar';
+  bar.innerHTML = `<div class="timeline-line"></div>`;
+  // compute min/max months (use months >= 0)
+  const monthsArr = withDates.map(w => Math.max(0, w.months));
+  const minM = Math.min(...monthsArr);
+  const maxM = Math.max(...monthsArr);
+  const span = Math.max(1, maxM - minM);
+
+  // place markers
+  withDates.forEach(w => {
+    const months = Math.max(0, w.months);
+    const pct = ((months - minM) / span) * 100;
+    const marker = document.createElement('div');
+    marker.className = 'marker';
+    marker.style.left = `calc(${pct}% )`;
+    marker.innerHTML = `<div class="dot" title="${contentRepo[w.key].title}"></div><div class="label">${fmtMonth(w.dt)}</div>`;
+    bar.appendChild(marker);
+  });
+
+  // hourglass + legend
+  const legend = document.createElement('div');
+  legend.style.display='flex';
+  legend.style.justifyContent='space-between';
+  legend.style.alignItems='center';
+  legend.style.marginTop='6px';
+  legend.innerHTML = `<div style="font-size:13px;color:var(--muted)">⌛ Linha do tempo — distância estimada (baseada em janelas públicas)</div><div style="font-size:13px;color:var(--muted)">Agora → ${fmtMonth(new Date(Math.max(...withDates.map(w=>w.dt.getTime()))))}</div>`;
+
+  wrap.appendChild(bar);
+  wrap.appendChild(legend);
+  grid.appendChild(wrap);
+}
+
+/* open modal */
 let lastFocused = null;
 function openModal(key){
   const data = contentRepo[key];
@@ -270,25 +465,23 @@ function openModal(key){
   try{ document.documentElement.style.overflow='hidden'; }catch(e){}
 }
 function closeModal(){
-  modal.classList.remove('open');
-  modalBg.classList.remove('open');
-  modalBg.setAttribute('aria-hidden','true');
+  modal.classList.remove('open'); modalBg.classList.remove('open'); modalBg.setAttribute('aria-hidden','true');
   try{ document.documentElement.style.overflow=''; }catch(e){}
   if(lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
 }
-modalBg.addEventListener('click', (e)=>{ if(e.target===modalBg) closeModal(); });
 document.getElementById('modalClose').addEventListener('click', closeModal);
+modalBg.addEventListener('click',(e)=>{ if(e.target===modalBg) closeModal(); });
 
-/* keyboard shortcuts */
-document.addEventListener('keydown', (e)=>{
+/* keyboard shortcuts and bindings */
+document.addEventListener('keydown',(e)=>{
   if(e.key==='Escape' && modalBg.classList.contains('open')) closeModal();
   if(!e.ctrlKey && !e.metaKey && !e.altKey){
-    if(e.key.toLowerCase()==='w') toggleWide();
-    if(e.key.toLowerCase()==='h') openModal('help_custom');
+    if(e.key.toLowerCase()==='m'){ toggleLayout(); }
+    if(e.key.toLowerCase()==='h'){ openModal('help_custom'); }
   }
 });
 
-/* focus trap (simple) */
+/* focus trap (light) */
 document.addEventListener('focus', function(e){
   if(modalBg.classList.contains('open') && !modal.contains(e.target)){
     e.stopPropagation();
@@ -296,48 +489,36 @@ document.addEventListener('focus', function(e){
   }
 }, true);
 
-function toggleWide(){
-  document.getElementById('radarWrap').classList.toggle('wide');
-  toggleWideBtn.textContent = document.getElementById('radarWrap').classList.contains('wide') ? '🗔 Wide' : '↔ Largura';
-}
-toggleWideBtn.addEventListener('click', toggleWide);
-helpBtn.addEventListener('click', ()=> openModal('help_custom'));
+/* render initial grouped view */
+function renderInitial(){ renderGrouped(); }
+renderInitial();
 
+/* toggle layout */
+function toggleLayout(){
+  const isGrouped = radarWrap.classList.contains('grouped');
+  if(isGrouped){
+    radarWrap.classList.remove('grouped');
+    radarWrap.classList.add('timeline');
+    toggleLayoutBtn.textContent = 'Modo: Linha do Tempo';
+    renderTimeline();
+  } else {
+    radarWrap.classList.remove('timeline');
+    radarWrap.classList.add('grouped');
+    toggleLayoutBtn.textContent = 'Modo: Agrupar';
+    renderGrouped();
+  }
+}
+toggleLayoutBtn.addEventListener('click', toggleLayout);
+
+/* help and copy */
+helpBtn.addEventListener('click', ()=> openModal('help_custom'));
 copyLinkBtn.addEventListener('click', ()=>{
   const url = (location.hostname && location.hostname.endsWith('github.io')) ? location.href : 'https://Fernando-NK.github.io/Widget-Notion/';
-  navigator.clipboard?.writeText(url).then(()=>{
-    copyLinkBtn.textContent='✓ Copiado'; setTimeout(()=> copyLinkBtn.textContent='🔗 Copiar link',1400);
-  }).catch(()=>{ copyLinkBtn.textContent='Erro'; setTimeout(()=> copyLinkBtn.textContent='🔗 Copiar link',1400); });
+  navigator.clipboard?.writeText(url).then(()=>{ copyLinkBtn.textContent='✓ Copiado'; setTimeout(()=> copyLinkBtn.textContent='🔗 Copiar link',1400); }).catch(()=>{ copyLinkBtn.textContent='Erro'; setTimeout(()=> copyLinkBtn.textContent='🔗 Copiar link',1400); });
 });
 
-/* render */
-renderCards();
-
-/* Defensive runtime patch: if host injects white background on frameElement, attempt to neutralize */
-(function runtimePatch(){
-  try{
-    const isEmbed = window.self !== window.top;
-    if(!isEmbed){
-      // explicit enforcement for top-level view (double-guard)
-      document.documentElement.style.background = '#03040a';
-      document.body.style.background = '#03040a';
-      document.body.style.color = '#e6e6e6';
-    } else {
-      document.documentElement.setAttribute('data-embed','true');
-      document.documentElement.style.background='transparent';
-      document.body.style.background='transparent';
-    }
-    // remove margins if present
-    document.body.style.margin='0';
-    document.body.style.padding='0';
-  }catch(e){}
-})();
-
-/* announce loaded for accessibility */
-(function announce(){
-  const live = document.createElement('div'); live.className='sr-only'; live.setAttribute('aria-live','polite'); live.textContent='Radar carregado'; document.body.appendChild(live);
-  setTimeout(()=> live.remove(),2000);
-})();
+/* accessibility: announce loaded */
+(function announce(){ const live=document.createElement('div'); live.className='sr-only'; live.setAttribute('aria-live','polite'); live.textContent='Radar carregado'; document.body.appendChild(live); setTimeout(()=> live.remove(),1200); })();
 </script>
 </body>
 </html>
