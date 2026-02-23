@@ -6,326 +6,281 @@
 <title>Radar de Editais — Virtus et Honor</title>
 
 <style>
-  :root{
-    --bg-start:#03040a;
-    --bg-end:#0b1118;
-    --card-start:#071018;
-    --card-end:#0f1723;
-    --muted:rgba(230,230,230,.72);
-    --accent-1:#8be9fd;
-    --accent-2:#bd93f9;
-    --accent-3:#ff79c6;
-    --danger:#ff3b3b;
-    --warn:#ffd93b;
-    --info:#3ba0ff;
-    --success:#50fa7b;
-    --radius:12px;
-    --max-default:980px;
-    --transition:.16s;
-    --font-sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-  }
+:root{
+ --bg-start:#03040a;
+ --bg-end:#0b1118;
+ --card-start:#071018;
+ --card-end:#0f1723;
+ --muted:rgba(230,230,230,.72);
+ --accent-1:#8be9fd;
+ --accent-2:#bd93f9;
+ --accent-3:#ff79c6;
+ --danger:#ff3b3b;
+ --warn:#ffd93b;
+ --info:#3ba0ff;
+ --success:#50fa7b;
+ --radius:12px;
+ --max-default:980px;
+}
 
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;padding:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;background:linear-gradient(180deg,var(--bg-start),var(--bg-end));color:#e6e6e6}
-  html[data-embed] body{background:transparent}
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:Inter,system-ui;
+ background:linear-gradient(180deg,var(--bg-start),var(--bg-end));
+ color:#e6e6e6;
+}
 
-  #radarWrap{width:100%;max-width:var(--max-default);margin:12px auto;padding:0;transition:max-width var(--transition) ease}
-  #radar{background:linear-gradient(180deg,var(--bg-start),var(--bg-end));border:1px solid rgba(255,255,255,.03);padding:16px;border-radius:14px;box-shadow:0 8px 30px rgba(2,6,23,.6)}
+#radarWrap{max-width:var(--max-default);margin:12px auto}
+#radar{padding:16px}
 
-  .header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-  .title{font-weight:800;font-size:18px;background:linear-gradient(90deg,var(--accent-1),var(--accent-2),var(--accent-3));-webkit-background-clip:text;color:transparent}
-  .subtitle{font-size:12px;color:var(--muted)}
-  .controls{display:flex;gap:8px;align-items:center}
-  .ctrl-btn{background:transparent;border:1px solid rgba(255,255,255,.04);padding:6px 10px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:13px}
-  .ctrl-btn:focus{outline:3px solid rgba(139,233,253,.12);outline-offset:3px}
-  .ctrl-btn:hover{border-color:rgba(255,255,255,.08);color:#fff}
+.title{
+ font-weight:800;
+ font-size:18px;
+ background:linear-gradient(90deg,var(--accent-1),var(--accent-2),var(--accent-3));
+ -webkit-background-clip:text;
+ color:transparent;
+}
 
-  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;align-items:start}
-  .section-title{grid-column:span 12;color:var(--muted);font-size:14px;margin-top:6px;margin-bottom:6px;font-weight:700}
+.subtitle{font-size:12px;color:var(--muted)}
 
-  /* card minimal: title only, centered */
-  .card{grid-column:span 12;background:linear-gradient(145deg,var(--card-start),var(--card-end));border:1px solid rgba(255,255,255,.03);padding:18px;border-radius:12px;position:relative;cursor:pointer;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease;user-select:none;display:flex;align-items:center;justify-content:center;text-align:center;flex-direction:column;gap:8px}
-  .card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(0,0,0,.5);border-color:rgba(255,255,255,.06)}
-  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:6px 0 0 6px}
-  .alvo::before{background:var(--danger)} .obs::before{background:var(--warn)} .reta::before{background:var(--info)}
+.controls{margin-top:10px}
 
-  .name{font-weight:800;font-size:15px;line-height:1.05}
-  .pill{font-size:11px;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.03);white-space:nowrap}
+.ctrl-btn{
+ background:transparent;
+ border:1px solid rgba(255,255,255,.05);
+ padding:6px 10px;
+ border-radius:8px;
+ color:var(--muted);
+ cursor:pointer;
+}
 
-  .sr-only{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.grid{
+ display:grid;
+ grid-template-columns:1fr;
+ gap:12px;
+ margin-top:14px;
+}
 
-  /* modal overlay (initially hidden) */
-  .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(1,2,5,.55),rgba(1,2,5,.72));z-index:9999;backdrop-filter:blur(3px)}
-  .overlay.open{display:flex}
+.section-title{
+ color:var(--muted);
+ font-weight:700;
+ margin-top:10px;
+}
 
-  .modal{width:min(920px,96%);max-height:90vh;border-radius:12px;background:linear-gradient(180deg,#071018,#0c1218);border:1px solid rgba(255,255,255,.04);box-shadow:0 20px 60px rgba(0,0,0,.7);display:flex;flex-direction:column;overflow:hidden}
-  .modal-header{display:flex;align-items:flex-start;justify-content:space-between;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.02)}
-  .modal-title{font-weight:800;font-size:16px}
-  .modal-sub{font-size:12px;color:var(--muted);margin-top:4px}
-  .modal-close{background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:20px;padding:6px;border-radius:8px}
-  .modal-close:hover{color:#fff}
-  .modal-body{padding:16px;overflow:auto;color:#dfeaf0;font-size:14px;line-height:1.5}
+.card{
+ background:linear-gradient(145deg,var(--card-start),var(--card-end));
+ border:1px solid rgba(255,255,255,.05);
+ padding:18px;
+ border-radius:14px;
+ cursor:pointer;
+ text-align:center;
+ transition:.2s;
+ position:relative;
+}
 
-  @media (min-width:980px){
-    #radarWrap.grouped .grid .card.half{grid-column:span 6}
-  }
-  @media (max-width:680px){
-    .card{padding:14px}
-    .modal{width:100%;height:100%;border-radius:0}
-    .modal-body{padding:12px}
-  }
+.card:hover{
+ transform:translateY(-4px);
+ border-color:rgba(255,255,255,.15);
+}
+
+.card::before{
+ content:"";
+ position:absolute;
+ left:0;
+ top:0;
+ bottom:0;
+ width:4px;
+ border-radius:6px 0 0 6px;
+}
+
+.alvo::before{background:var(--danger)}
+.obs::before{background:var(--warn)}
+.reta::before{background:var(--info)}
+
+.name{
+ font-weight:700;
+ font-size:15px;
+ margin-bottom:8px;
+ text-align:center;
+}
+
+.pill{
+ font-size:11px;
+ padding:6px 10px;
+ border-radius:999px;
+ display:inline-block;
+ margin-top:4px;
+ border:1px solid;
+}
+
+.previsto{color:var(--accent-1);border-color:var(--accent-1)}
+.pldo{color:var(--warn);border-color:var(--warn)}
+.autorizado{color:var(--success);border-color:var(--success)}
+.longo{color:var(--info);border-color:var(--info)}
+
+/* ===== MODAL ===== */
+
+#modal{
+ position:fixed;
+ inset:0;
+ background:rgba(0,0,0,.7);
+ display:none;
+ align-items:center;
+ justify-content:center;
+ z-index:9999;
+}
+
+#modalBox{
+ background:#0f1723;
+ border:1px solid rgba(255,255,255,.1);
+ width:90%;
+ max-width:700px;
+ border-radius:16px;
+ padding:24px;
+ animation:fade .2s ease;
+ max-height:80vh;
+ overflow:auto;
+}
+
+@keyframes fade{
+ from{opacity:0;transform:scale(.95)}
+ to{opacity:1;transform:scale(1)}
+}
+
+.modal-close{
+ position:absolute;
+ right:20px;
+ top:18px;
+ cursor:pointer;
+ font-size:18px;
+ color:var(--muted);
+}
+
+.modal-close:hover{color:white}
+
+.modal-content{
+ margin-top:20px;
+ line-height:1.6;
+}
+
+hr{
+ border:none;
+ border-top:1px solid rgba(255,255,255,.1);
+ margin:18px 0;
+}
 </style>
 </head>
+
 <body>
-  <div id="radarWrap" class="grouped" role="region" aria-label="Radar de Editais — Virtus et Honor">
-    <div id="radar" role="application" aria-describedby="radar-note">
-      <div class="header">
-        <div>
-          <div class="title">📡 Radar de Editais — Virtus et Honor</div>
-          <div class="subtitle" id="updatedAt">Atualizado em: 20/02/2026</div>
-        </div>
 
-        <div class="controls" role="toolbar" aria-label="Controles do widget">
-          <button id="toggleLayout" class="ctrl-btn" title="Alternar modo">Modo: Prioridade</button>
-        </div>
-      </div>
+<div id="radarWrap">
+<div id="radar">
 
-      <div class="grid" id="grid" role="list" aria-live="polite"></div>
-    </div>
-  </div>
+<div class="title">📡 Radar de Editais — Virtus et Honor</div>
+<div class="subtitle">Atualizado em: 20/02/2026</div>
 
-  <!-- Modal centralizado -->
-  <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="modal" role="document" aria-labelledby="modalTitle">
-      <div class="modal-header">
-        <div>
-          <div id="modalTitle" class="modal-title"></div>
-          <div id="modalSub" class="modal-sub"></div>
-        </div>
-        <div>
-          <button id="modalClose" class="modal-close" aria-label="Fechar">✕</button>
-        </div>
-      </div>
-      <div id="modalBody" class="modal-body" tabindex="0"></div>
-    </div>
-  </div>
+<div class="controls">
+<button id="toggleLayout" class="ctrl-btn">Modo: Prioridade</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+</div>
+</div>
+
+<!-- MODAL -->
+<div id="modal">
+ <div id="modalBox">
+  <div class="modal-close" onclick="closeModal()">✕</div>
+  <div id="modalContent" class="modal-content"></div>
+ </div>
+</div>
 
 <script>
-/* ========= DADOS ========= */
-const updatedAtText = "20/02/2026";
 
-/* full descriptions (useu texto) */
-const groupFullText = `
-<strong>👁‍🗨 Em Alvo (Prioridade Máxima)</strong><br><br>
-- <strong>PM-GO</strong> — Próximo edital de Soldado tende a sair <strong>entre julho e outubro de 2026</strong>, com <strong>pico de probabilidade em setembro de 2026</strong> e prova em <strong>novembro de 2026</strong>.<br>
-- <strong>PRF</strong> — Concurso 2021 prorrogado até <strong>junho de 2026</strong>, o que empurra o novo edital para <strong>após essa data</strong>; cenário mais provável é edital <strong>no 2º semestre de 2026</strong> (set–dez) com provas no <strong>início de 2027</strong>, considerando pedidos de <strong>511 vagas</strong> (263 policiais + 248 administrativos) e solicitações maiores em análise.<br><br>
-<hr style="border:none;border-top:1px solid rgba(255,255,255,.04);margin:12px 0">
+const descricaoCompleta = `
+<h3>👁‍🗨 Em Alvo (Prioridade Máxima)</h3>
+<ul>
+<li><strong>PM-GO</strong> — Próximo edital de Soldado tende a sair <strong>entre julho e outubro de 2026</strong>, com <strong>pico em setembro de 2026</strong> e prova em <strong>novembro de 2026</strong>.</li>
+<li><strong>PRF</strong> — Concurso 2021 prorrogado até <strong>junho de 2026</strong>. Novo edital provável <strong>2º semestre de 2026</strong> (set–dez), provas no <strong>início de 2027</strong>. Pedido de <strong>511 vagas</strong>, podendo chegar a 5.137 em análise.</li>
+</ul>
 
-<strong>⚠️ Em Observação</strong><br><br>
-- <strong>PC-MT</strong> — Novo concurso previsto no <strong>PLDO 2026</strong>, com edital projetado para o <strong>2º semestre de 2026</strong>, após o fim da validade do último concurso (Investigador/Escrivão válido até junho de 2026).<br>
-- <strong>PM-MT</strong> — Concurso previsto no <strong>PLDO 2026</strong>, com vagas para <strong>Aluno Oficial e Soldado</strong>; expectativa de edital em <strong>2026</strong>, vinculado ao orçamento já sinalizado na Assembleia Legislativa.<br>
-- <strong>PC-DF</strong> (Perito/Papiloscopista/Perito Médico-Legista) — Concurso <strong>autorizado</strong> com <strong>105 vagas + 210 CR</strong>, com forte expectativa de edital entre <strong>2026 e início de 2027</strong>.<br>
-- <strong>PC-PR</strong> — <strong>Autorizado oficialmente com comissão formada</strong> para Delegado, Agente e Papiloscopista. Previsão de <strong>edital 2º semestre de 2026</strong>.<br><br>
-<hr style="border:none;border-top:1px solid rgba(255,255,255,.04);margin:12px 0">
+<hr>
 
-<strong>❄️ Na Retaguarda (Monitoramento Estratégico)</strong><br><br>
-- <strong>PF</strong> — Próximo grande concurso de nível nacional <strong>tende a ficar para 2028 em diante</strong>, após o ciclo atual de convocações e a priorização, no curto prazo, de PRF e polícias penais estaduais.<br>
-- <strong>PC-GO</strong> — Novo concurso em estudos, mas sem estrutura avançada como PMGO; cenário mais realista é edital <strong>a partir de 2026/2027</strong>, após consolidação dos concursos da PMGO e ajustes orçamentários estaduais.<br>
-- <strong>PC-TO</strong> — Comissão e movimentações apontam chances de edital <strong>em 2026/2027</strong>.<br>
+<h3>⚠️ Em Observação</h3>
+<ul>
+<li><strong>PC-MT</strong> — Previsto no <strong>PLDO 2026</strong>, edital no <strong>2º semestre de 2026</strong>.</li>
+<li><strong>PM-MT</strong> — Previsto no <strong>PLDO 2026</strong>, vagas para <strong>Aluno Oficial e Soldado</strong>.</li>
+<li><strong>PC-DF</strong> — <strong>Autorizado</strong> com <strong>105 vagas + 210 CR</strong>. Edital entre <strong>2026 e início de 2027</strong>.</li>
+<li><strong>PC-PR</strong> — <strong>Autorizado oficialmente com comissão formada</strong>. Edital previsto para <strong>2º semestre de 2026</strong>.</li>
+</ul>
+
+<hr>
+
+<h3>❄️ Na Retaguarda (Monitoramento Estratégico)</h3>
+<ul>
+<li><strong>PF</strong> — Próximo grande concurso tende a ficar para <strong>2028+</strong>.</li>
+<li><strong>PC-GO</strong> — Estudos em andamento. Edital possível <strong>2026/2027</strong>.</li>
+<li><strong>PC-TO</strong> — Movimentações indicam chances de edital <strong>2026/2027</strong>.</li>
+</ul>
 `;
 
-/* itens: apenas título central no cartão; fullHtml mostrado no modal */
 const concursos = [
-  { key:"pmgo", titulo:"Polícia Militar do Estado de Goiás", grupo:"alvo", tag:"PREVISTO", date:"2026-09-01",
-    fullHtml: `<strong>Polícia Militar do Estado de Goiás — Soldado</strong><br><br>Próximo edital de Soldado tende a sair <strong>entre julho e outubro de 2026</strong>, com <strong>pico de probabilidade em setembro de 2026</strong> e prova em <strong>novembro de 2026</strong>.<br><br>${groupFullText}` },
-
-  { key:"prf", titulo:"Polícia Rodoviária Federal", grupo:"alvo", tag:"MÉDIO PRAZO", date:"2026-11-01",
-    fullHtml: `<strong>Polícia Rodoviária Federal (PRF)</strong><br><br>Concurso 2021 prorrogado até <strong>junho de 2026</strong>. Cenário provável: edital no <strong>2º semestre de 2026</strong> (set–dez) com provas no início de 2027. Pedidos de vagas e análises em andamento.<br><br>${groupFullText}` },
-
-  { key:"pcmt", titulo:"Polícia Civil do Mato Grosso (PC-MT)", grupo:"obs", tag:"PLDO", date:"2026-10-01",
-    fullHtml: `<strong>Polícia Civil - Mato Grosso</strong><br><br>Novo concurso previsto no <strong>PLDO 2026</strong>. Possível edital no segundo semestre de 2026, após o término da validade do último certame (Investigador/Escrivão).<br><br>${groupFullText}` },
-
-  { key:"pmt", titulo:"Polícia Militar do Mato Grosso (PM-MT)", grupo:"obs", tag:"PLDO", date:"2026-10-15",
-    fullHtml: `<strong>Polícia Militar - Mato Grosso</strong><br><br>Previsto no PLDO 2026; vagas previstas para Aluno Oficial e Soldado. Publicação dependente de dotação orçamentária.<br><br>${groupFullText}` },
-
-  { key:"pcdf", titulo:"Polícia Civil do Distrito Federal (PC-DF)", grupo:"obs", tag:"AUTORIZADO", date:"2026-12-01",
-    fullHtml: `<strong>Polícia Civil - Distrito Federal</strong><br><br>Concurso autorizado com <strong>105 vagas + 210 CR</strong> (Perito / Papiloscopista / Perito Médico-Legista). Forte expectativa de edital entre 2026 e início de 2027.<br><br>${groupFullText}` },
-
-  { key:"pcpr", titulo:"Polícia Civil do Paraná (PC-PR)", grupo:"obs", tag:"AUTORIZADO", date:"2026-09-15",
-    fullHtml: `<strong>Polícia Civil - Paraná</strong><br><br>Autorizado oficialmente com comissão formada para cargos como Delegado, Agente e Papiloscopista. Previsão: 2º semestre de 2026.<br><br>${groupFullText}` },
-
-  { key:"pf", titulo:"Polícia Federal (PF)", grupo:"reta", tag:"LONGO PRAZO", date:"2028-06-01",
-    fullHtml: `<strong>Polícia Federal</strong><br><br>Próximo grande concurso tende a ficar para <strong>2028 em diante</strong>, dependendo do ciclo de convocações e prioridades nacionais.<br><br>${groupFullText}` },
-
-  { key:"pcgo", titulo:"Polícia Civil do Estado de Goiás (PC-GO)", grupo:"reta", tag:"ESTUDO", date:"2027-03-01",
-    fullHtml: `<strong>Polícia Civil - Goiás</strong><br><br>Em estudo; cenário mais realista para edital a partir de 2026/2027, após consolidação de prioridades estaduais.<br><br>${groupFullText}` },
-
-  { key:"pcto", titulo:"Polícia Civil do Tocantins (PC-TO)", grupo:"reta", tag:"COMISSÃO", date:"2027-02-01",
-    fullHtml: `<strong>Polícia Civil - Tocantins</strong><br><br>Comissões e movimentações indicam chances de edital entre 2026 e 2027. Monitorar publicações oficiais.<br><br>${groupFullText}` }
+ {nome:"Polícia Militar do Estado de Goiás", grupo:"alvo", tag:"PREVISTO"},
+ {nome:"Polícia Rodoviária Federal", grupo:"alvo", tag:"MÉDIO PRAZO"},
+ {nome:"Polícia Civil - MT", grupo:"obs", tag:"PLDO"},
+ {nome:"Polícia Militar - MT", grupo:"obs", tag:"PLDO"},
+ {nome:"Polícia Civil - DF", grupo:"obs", tag:"AUTORIZADO"},
+ {nome:"Polícia Civil - PR", grupo:"obs", tag:"AUTORIZADO"},
+ {nome:"Polícia Federal", grupo:"reta", tag:"LONGO PRAZO"},
+ {nome:"Polícia Civil - GO", grupo:"reta", tag:"ESTUDO"},
+ {nome:"Polícia Civil - TO", grupo:"reta", tag:"COMISSÃO"}
 ];
 
-const gruposOrdem = [
-  { id:"alvo", titulo:"👁‍🗨 Em Alvo (Prioridade Máxima)" },
-  { id:"obs",  titulo:"⚠️ Em Observação" },
-  { id:"reta", titulo:"❄️ Na Retaguarda (Monitoramento Estratégico)" }
-];
-
-document.getElementById('updatedAt').textContent = `Atualizado em: ${updatedAtText}`;
-
-/* ========= UTIL ========= */
-const grid = document.getElementById('grid');
-const toggleLayoutBtn = document.getElementById('toggleLayout');
-const overlay = document.getElementById('overlay');
-const modalTitle = document.getElementById('modalTitle');
-const modalSub = document.getElementById('modalSub');
-const modalBody = document.getElementById('modalBody');
-const modalClose = document.getElementById('modalClose');
-
-let mode = 'group'; // group = Prioridade, time = Proximidade
-let lastFocused = null;
-
-function formatDateISO(d){
-  if(!d) return '';
-  const dt = new Date(d + 'T00:00:00');
-  const dd = String(dt.getDate()).padStart(2,'0');
-  const mm = String(dt.getMonth()+1).padStart(2,'0');
-  const yy = dt.getFullYear();
-  return `${dd}/${mm}/${yy}`;
-}
-function tempoRestanteISO(d){
-  if(!d) return '';
-  const alvo = new Date(d + 'T00:00:00');
-  const hoje = new Date(); const hojeStart = new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate()).getTime();
-  const alvoStart = new Date(alvo.getFullYear(),alvo.getMonth(),alvo.getDate()).getTime();
-  const diff = alvoStart - hojeStart;
-  if(diff<=0) return 'SAIU';
-  const days = Math.floor(diff/86400000);
-  const months = Math.floor(days/30);
-  if(months>0) return `${months}m`;
-  return `${days}d`;
+function pillClass(tag){
+ const map={
+  "PREVISTO":"previsto",
+  "MÉDIO PRAZO":"previsto",
+  "PLDO":"pldo",
+  "AUTORIZADO":"autorizado",
+  "LONGO PRAZO":"longo",
+  "ESTUDO":"pldo",
+  "COMISSÃO":"pldo"
+ }
+ return map[tag] || ""
 }
 
-/* create minimal centered card (title only) */
-function createCard(c){
-  const el = document.createElement('div');
-  el.className = `card ${c.grupo}`;
-  el.setAttribute('role','button');
-  el.setAttribute('tabindex','0');
-  el.dataset.key = c.key;
-
-  el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-      <div class="name" style="text-align:center">${c.titulo}</div>
-      <div class="pill ${pillClass(c.tag)}" style="margin-top:6px">${c.tag}</div>
-    </div>
-  `;
-
-  // open modal on click or keyboard activation
-  el.addEventListener('click', ()=> openModalFor(c));
-  el.addEventListener('keydown', (e)=> { if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openModalFor(c); } });
-
-  return el;
+function render(){
+ const grid=document.getElementById("grid")
+ grid.innerHTML=""
+ concursos.forEach(c=>{
+  const el=document.createElement("div")
+  el.className="card "+c.grupo
+  el.innerHTML=`
+   <div class="name">${c.nome}</div>
+   <span class="pill ${pillClass(c.tag)}">${c.tag}</span>
+  `
+  el.onclick=()=>openModal()
+  grid.appendChild(el)
+ })
 }
 
-function pillClass(label){
-  const map = { 'PREVISTO':'previsto', 'MÉDIO PRAZO':'previsto', 'PLDO':'pldo', 'AUTORIZADO':'autorizado', 'LONGO PRAZO':'longo', 'ESTUDO':'pldo', 'COMISSÃO':'pldo' };
-  return map[label] || '';
-}
-
-/* ===== render grouped (Prioridade) ===== */
-function renderGrouped(){
-  grid.innerHTML = '';
-  for(const g of gruposOrdem){
-    const sec = document.createElement('div'); sec.className = 'section-title'; sec.textContent = g.titulo;
-    grid.appendChild(sec);
-
-    const itens = concursos.filter(x => x.grupo === g.id);
-    if(itens.length === 0){
-      const empty = document.createElement('div'); empty.className = 'card small'; empty.innerHTML = `<div class="name">—</div>`;
-      grid.appendChild(empty);
-    } else {
-      for(const it of itens) grid.appendChild(createCard(it));
-    }
-  }
-}
-
-/* ===== render time-ordered (Proximidade) ===== */
-function renderTime(){
-  grid.innerHTML = '';
-  const items = [...concursos].sort((a,b) => new Date(a.date) - new Date(b.date));
-  for(const c of items){
-    // show same minimal card (title + pill)
-    grid.appendChild(createCard(c));
-  }
-}
-
-/* ===== Modal behavior ===== */
-function openModalFor(item){
-  lastFocused = document.activeElement;
-  modalTitle.innerText = item.titulo;
-  modalSub.innerText = `Status: ${item.tag} • Previsão: ${formatDateISO(item.date)} • Proximidade: ${tempoRestanteISO(item.date)}`;
-  modalBody.innerHTML = `${item.fullHtml}<div style="margin-top:16px;font-size:12px;color:var(--muted)">Atualizado em: ${updatedAtText} — Fonte: monitoramento público (ofícios, PLDO, autorizações).</div>`;
-  overlay.classList.add('open');
-  overlay.setAttribute('aria-hidden','false');
-  // focus close button for keyboard users
-  setTimeout(()=> modalClose.focus(),40);
+function openModal(){
+ document.getElementById("modalContent").innerHTML=descricaoCompleta
+ document.getElementById("modal").style.display="flex"
 }
 
 function closeModal(){
-  overlay.classList.remove('open');
-  overlay.setAttribute('aria-hidden','true');
-  // restore focus
-  if(lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+ document.getElementById("modal").style.display="none"
 }
 
-/* close on overlay click (outside modal) */
-overlay.addEventListener('click', (e) => {
-  if(e.target === overlay) closeModal();
-});
+document.getElementById("modal").addEventListener("click",function(e){
+ if(e.target.id==="modal") closeModal()
+})
 
-/* close on X button */
-modalClose.addEventListener('click', closeModal);
-
-/* close on Esc */
-document.addEventListener('keydown', (e) => {
-  if(e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
-  // shortcuts
-  if(!e.ctrlKey && !e.metaKey && !e.altKey){
-    if(e.key.toLowerCase() === 'm') toggleMode();
-    if(e.key.toLowerCase() === 'h'){
-      // short aria announcement
-      const live = document.createElement('div'); live.className = 'sr-only'; live.setAttribute('aria-live','polite');
-      live.textContent = 'Atalhos: M alterna Prioridade/Proximidade. Enter abre detalhes do card. ESC fecha o modal.';
-      document.body.appendChild(live); setTimeout(()=> live.remove(),1400);
-    }
-  }
-});
-
-/* toggle layout */
-function toggleMode(){
-  if(mode === 'group'){
-    mode = 'time';
-    toggleLayoutBtn.textContent = 'Modo: Proximidade';
-    renderTime();
-    document.getElementById('radarWrap').classList.remove('grouped');
-    document.getElementById('radarWrap').classList.add('timeline');
-  } else {
-    mode = 'group';
-    toggleLayoutBtn.textContent = 'Modo: Prioridade';
-    renderGrouped();
-    document.getElementById('radarWrap').classList.remove('timeline');
-    document.getElementById('radarWrap').classList.add('grouped');
-  }
-}
-
-/* wire toggle button */
-toggleLayoutBtn.addEventListener('click', toggleMode);
-
-/* initial render */
-renderGrouped();
-
-/* small a11y announce */
-(function announce(){ const live=document.createElement('div'); live.className='sr-only'; live.setAttribute('aria-live','polite'); live.textContent='Radar carregado'; document.body.appendChild(live); setTimeout(()=> live.remove(),1200); })();
+render()
 </script>
+
 </body>
 </html>
