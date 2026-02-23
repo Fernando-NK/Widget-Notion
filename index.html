@@ -1,266 +1,322 @@
-<!DOCTYPE html>
-<html lang="pt-br">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Radar de Editais</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Radar de Editais — Virtus et Honor</title>
 <style>
-:root{
- --bg:#03040a;
- --card:#0f1723;
- --border:rgba(255,255,255,.05);
- --text:#e6e6e6;
- --muted:rgba(230,230,230,.6);
- --danger:#ff4d4d;
- --warn:#ffd93b;
- --info:#3ba0ff;
-}
+  :root{
+    --bg-start:#03040a;
+    --bg-end:#0b1118;
+    --card-start:#071018;
+    --card-end:#0f1723;
+    --muted:rgba(230,230,230,.72);
+    --accent-1:#8be9fd;
+    --accent-2:#bd93f9;
+    --accent-3:#ff79c6;
+    --danger:#ff3b3b;
+    --warn:#ffd93b;
+    --info:#3ba0ff;
+    --success:#50fa7b;
+    --radius:12px;
+    --max-default:980px;
+    --transition:.16s;
+    --font-sans:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
 
-*{box-sizing:border-box}
-body{
- margin:0;
- font-family:system-ui,Segoe UI,Roboto;
- background:linear-gradient(#03040a,#0b1118);
- color:var(--text);
-}
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;padding:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;background:linear-gradient(180deg,var(--bg-start),var(--bg-end));color:#e6e6e6}
+  html[data-embed] body{background:transparent}
 
-#wrap{max-width:1000px;margin:auto;padding:16px}
+  #radarWrap{width:100%;max-width:var(--max-default);margin:12px auto;padding:0;transition:max-width var(--transition) ease}
+  #radar{background:linear-gradient(180deg,var(--bg-start),var(--bg-end));border:1px solid rgba(255,255,255,.03);padding:16px;border-radius:14px;box-shadow:0 8px 30px rgba(2,6,23,.6)}
 
-.title{
- font-size:20px;
- font-weight:800;
- margin-bottom:2px;
-}
+  .header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .title{font-weight:800;font-size:18px;background:linear-gradient(90deg,var(--accent-1),var(--accent-2),var(--accent-3));-webkit-background-clip:text;color:transparent}
+  .subtitle{font-size:12px;color:var(--muted)}
+  .controls{display:flex;gap:8px;align-items:center}
+  .ctrl-btn{background:transparent;border:1px solid rgba(255,255,255,.04);padding:6px 10px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:13px}
+  .ctrl-btn:focus{outline:3px solid rgba(139,233,253,.12);outline-offset:3px}
+  .ctrl-btn:hover{border-color:rgba(255,255,255,.08);color:#fff}
 
-.subtitle{
- font-size:12px;
- color:var(--muted);
- margin-bottom:14px;
-}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;align-items:start}
+  .section-title{grid-column:span 12;color:var(--muted);font-size:14px;margin-top:6px;margin-bottom:6px;font-weight:700}
 
-.controls{
- margin-bottom:10px;
-}
+  .card{grid-column:span 12;background:linear-gradient(145deg,var(--card-start),var(--card-end));border:1px solid rgba(255,255,255,.03);padding:12px;border-radius:12px;position:relative;cursor:pointer;transition:transform .14s ease,border-color .14s ease,box-shadow .14s ease;user-select:none;display:flex;flex-direction:column;gap:8px}
+  .card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(0,0,0,.5);border-color:rgba(255,255,255,.06)}
+  .card.small{padding:10px}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:6px 0 0 6px}
+  .alvo::before{background:var(--danger)} .obs::before{background:var(--warn)} .reta::before{background:var(--info)}
 
-button{
- background:none;
- border:1px solid var(--border);
- color:var(--muted);
- padding:6px 12px;
- border-radius:8px;
- cursor:pointer;
-}
+  .card-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .left{display:flex;flex-direction:column;gap:6px}
+  .name{font-weight:700;font-size:15px}
+  .meta{font-size:12px;color:var(--muted)}
+  .pill{font-size:11px;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.03);white-space:nowrap}
+  .pill.previsto{color:var(--accent-1);border-color:var(--accent-1)} .pill.autorizado{color:var(--success);border-color:var(--success)}
+  .pill.pldo{color:var(--warn);border-color:var(--warn)} .pill.longo{color:var(--info);border-color:var(--info)}
+  .tag-small{font-size:11px;color:var(--muted)}
 
-button:hover{border-color:white;color:white}
+  /* expandable description */
+  .desc{
+    font-size:13px;color:#dfeaf0;line-height:1.45;
+    max-height:0;overflow:hidden;transition:max-height .2s ease,padding .18s ease;
+    padding:0 2px;
+  }
+  .desc.open{max-height:400px;padding-top:8px;padding-bottom:6px}
 
-.section{
- margin-top:18px;
- font-weight:700;
- color:var(--muted);
-}
+  .time-right{text-align:right;min-width:84px}
 
-.grid{
- display:grid;
- gap:10px;
- margin-top:10px;
-}
+  .sr-only{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-.card{
- background:var(--card);
- border:1px solid var(--border);
- padding:12px;
- border-radius:12px;
- cursor:pointer;
- transition:.15s;
- position:relative;
-}
-
-.card:hover{
- transform:translateY(-3px);
- border-color:white;
-}
-
-.card::before{
- content:"";
- position:absolute;
- left:0;top:0;bottom:0;width:4px;
- border-radius:6px 0 0 6px;
-}
-
-.alvo::before{background:var(--danger)}
-.obs::before{background:var(--warn)}
-.reta::before{background:var(--info)}
-
-.name{font-weight:700}
-.tag{font-size:11px;color:var(--muted);margin-top:4px}
-
-/* modal */
-#modal{
- position:fixed;
- inset:0;
- display:none;
- align-items:center;
- justify-content:center;
- background:rgba(0,0,0,.65);
- z-index:999;
-}
-
-#modalBox{
- background:#070d16;
- border:1px solid var(--border);
- padding:18px;
- border-radius:14px;
- max-width:520px;
- width:90%;
- animation:fade .18s ease;
-}
-
-@keyframes fade{
- from{opacity:0;transform:scale(.95)}
- to{opacity:1;transform:scale(1)}
-}
-
-.close{
- float:right;
- cursor:pointer;
- color:var(--muted);
-}
-
-.close:hover{color:white}
+  @media (min-width:980px){
+    #radarWrap.grouped .grid .card.half{grid-column:span 6}
+  }
+  @media (max-width:980px){
+    #radar{padding:12px}
+    .card{padding:10px}
+    .pill{padding:5px 8px}
+  }
 </style>
 </head>
-
 <body>
-<div id="wrap">
+  <div id="radarWrap" class="grouped" role="region" aria-label="Radar de Editais — Virtus et Honor">
+    <div id="radar" role="application" aria-describedby="radar-note">
+      <div class="header">
+        <div>
+          <div class="title">📡 Radar de Editais — Virtus et Honor</div>
+          <div class="subtitle" id="updatedAt">Atualizado em: 20/02/2026</div>
+        </div>
 
-<div class="title">📡 Radar de Editais</div>
-<div class="subtitle">Atualizado em: 20/02/2026</div>
+        <div class="controls" role="toolbar" aria-label="Controles do widget">
+          <button id="toggleLayout" class="ctrl-btn" title="Alternar modo">Modo: Prioridade</button>
+        </div>
+      </div>
 
-<div class="controls">
-<button onclick="toggleMode()">Modo: Prioridade</button>
-</div>
-
-<div id="grid" class="grid"></div>
-
-</div>
-
-<!-- modal -->
-<div id="modal" onclick="if(event.target.id==='modal')closeModal()">
- <div id="modalBox">
-  <div class="close" onclick="closeModal()">✕</div>
-  <div id="modalContent"></div>
- </div>
-</div>
+      <div class="grid" id="grid" role="list" aria-live="polite"></div>
+    </div>
+  </div>
 
 <script>
-let mode="prioridade"
+/* ========== DADOS (edite aqui) ========== */
+const updatedAtText = "20/02/2026";
 
-const concursos=[
-{
-nome:"Polícia Militar de Goiás",
-grupo:"alvo",
-tag:"Edital 2026 provável",
-desc:"Próximo edital de Soldado tende a sair entre julho e outubro de 2026, com pico em setembro e prova provável em novembro."
-},
-{
-nome:"Polícia Rodoviária Federal",
-grupo:"alvo",
-tag:"Após junho 2026",
-desc:"Concurso atual válido até junho de 2026. Próximo edital mais provável no 2º semestre de 2026 com provas em 2027."
-},
-{
-nome:"Polícia Civil de Mato Grosso",
-grupo:"obs",
-tag:"PLDO 2026",
-desc:"Novo concurso previsto no PLDO 2026. Expectativa de edital no 2º semestre."
-},
-{
-nome:"Polícia Militar de Mato Grosso",
-grupo:"obs",
-tag:"PLDO",
-desc:"Previsto orçamento para Aluno Oficial e Soldado. Possível edital em 2026."
-},
-{
-nome:"Polícia Civil do DF",
-grupo:"obs",
-tag:"Autorizado",
-desc:"105 vagas + 210 CR. Forte expectativa entre 2026 e início de 2027."
-},
-{
-nome:"Polícia Civil do Paraná",
-grupo:"obs",
-tag:"Comissão formada",
-desc:"Autorizado oficialmente. Edital esperado para 2º semestre de 2026."
-},
-{
-nome:"Polícia Federal",
-grupo:"reta",
-tag:"Longo prazo",
-desc:"Próximo grande concurso tende a ocorrer apenas em 2028 ou depois."
-},
-{
-nome:"Polícia Civil de Goiás",
-grupo:"reta",
-tag:"Em estudo",
-desc:"Sem estrutura avançada ainda. Cenário realista a partir de 2026/2027."
-},
-{
-nome:"Polícia Civil do Tocantins",
-grupo:"reta",
-tag:"Movimentações",
-desc:"Comissão e movimentações indicam chances de edital entre 2026 e 2027."
+const concursos = [
+  {key:"pmgo", titulo:"PM-GO", tituloFull:"Polícia Militar do Estado de Goiás — Soldado", grupo:"alvo", tag:"PREVISTO", data:"2026-09-01", short:"Próximo edital: jul–out/2026; pico set/2026; prova nov/2026.", html:"<strong>Polícia Militar do Estado de Goiás — Soldado</strong><br>Próximo edital: <strong>jul–out/2026</strong>, pico em <strong>set/2026</strong>. Prova estimada em <strong>nov/2026</strong>."},
+  {key:"prf", titulo:"PRF", tituloFull:"Polícia Rodoviária Federal — Concurso Nacional", grupo:"alvo", tag:"MÉDIO PRAZO", data:"2026-11-01", short:"Concurso 2021 válido até jun/2026; provável edital 2º sem/2026; provas início 2027.", html:"<strong>Polícia Rodoviária Federal</strong><br>Concurso 2021 prorrogado até <strong>jun/2026</strong>. Cenário provável: edital no <strong>2º semestre de 2026</strong>."},
+  {key:"pcmt", titulo:"PC-MT", tituloFull:"Polícia Civil - MT", grupo:"obs", tag:"PLDO", data:"2026-10-01", short:"Previsto no PLDO 2026; possível edital no 2º sem/2026.", html:"<strong>Polícia Civil - MT</strong><br>Previsto no PLDO 2026. Possível edital no segundo semestre de 2026."},
+  {key:"pmt", titulo:"PM-MT", tituloFull:"Polícia Militar - MT", grupo:"obs", tag:"PLDO", data:"2026-10-15", short:"Previsto no PLDO; vagas para Aluno Oficial e Soldado.", html:"<strong>Polícia Militar - MT</strong><br>Previsto no PLDO 2026; expectativa de edital em 2026, vinculado a dotação orçamentária."},
+  {key:"pcdf", titulo:"PC-DF", tituloFull:"Polícia Civil - DF", grupo:"obs", tag:"AUTORIZADO", data:"2026-12-01", short:"Autorizado: 105 vagas + 210 CR; expectativa 2026–início 2027.", html:"<strong>Polícia Civil - DF</strong><br>Autorizado: <strong>105 vagas + 210 CR</strong>. Expectativa de edital entre 2026 e início de 2027."},
+  {key:"pcpr", titulo:"PC-PR", tituloFull:"Polícia Civil - PR", grupo:"obs", tag:"AUTORIZADO", data:"2026-09-15", short:"Autorizado e comissão formada; previsão 2º sem/2026.", html:"<strong>Polícia Civil - PR</strong><br>Autorizado oficialmente com comissão formada. Previsão de edital no 2º semestre de 2026."},
+  {key:"pf", titulo:"PF", tituloFull:"Polícia Federal", grupo:"reta", tag:"LONGO PRAZO", data:"2028-06-01", short:"Tende a ficar para 2028+.", html:"<strong>Polícia Federal</strong><br>Próximo grande concurso tende a ficar para <strong>2028+</strong>."},
+  {key:"pcgo", titulo:"PC-GO", tituloFull:"Polícia Civil - GO", grupo:"reta", tag:"ESTUDO", data:"2027-03-01", short:"Em estudo; possível 2026–2027.", html:"<strong>Polícia Civil - GO</strong><br>Em estudo; possível 2026–2027."},
+  {key:"pcto", titulo:"PC-TO", tituloFull:"Polícia Civil - TO", grupo:"reta", tag:"COMISSÃO", data:"2027-02-01", short:"Comissões e movimentações; chances 2026/2027.", html:"<strong>Polícia Civil - TO</strong><br>Comissões e movimentações indicam chances de edital em 2026/2027."}
+];
+
+const gruposOrdem = [
+  { id:"alvo", titulo:"👁‍🗨 Em Alvo (Prioridade Máxima)" },
+  { id:"obs", titulo:"⚠️ Em Observação" },
+  { id:"reta", titulo:"❄️ Na Retaguarda (Monitoramento Estratégico)" }
+];
+
+document.getElementById('updatedAt').textContent = `Atualizado em: ${updatedAtText}`;
+
+/* ===== util ===== */
+function parseDateISO(d){ return d ? new Date(d + 'T00:00:00') : null; }
+function formatDate(d){
+  if(!d) return '';
+  const dt = parseDateISO(d);
+  const day = String(dt.getDate()).padStart(2,'0');
+  const mon = String(dt.getMonth()+1).padStart(2,'0');
+  const yr = dt.getFullYear();
+  return `${day}/${mon}/${yr}`;
 }
-]
-
-function render(){
- const grid=document.getElementById("grid")
- grid.innerHTML=""
-
- if(mode==="prioridade"){
-  renderGrupo("👁‍🗨 Em Alvo (Prioridade Máxima)","alvo")
-  renderGrupo("⚠️ Em Observação","obs")
-  renderGrupo("❄️ Retaguarda","reta")
- }else{
-  concursos.forEach(addCard)
- }
+function tempoRestanteISO(d){
+  const alvo = parseDateISO(d);
+  if(!alvo) return '';
+  const hoje = new Date();
+  const hojeStart = new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate()).getTime();
+  const alvoStart = new Date(alvo.getFullYear(),alvo.getMonth(),alvo.getDate()).getTime();
+  const diff = alvoStart - hojeStart;
+  if(diff<=0) return 'SAIU';
+  const days = Math.floor(diff/86400000);
+  const months = Math.floor(days/30);
+  if(months>0) return `${months}m`;
+  return `${days}d`;
 }
 
-function renderGrupo(titulo,id){
- const grid=document.getElementById("grid")
- const s=document.createElement("div")
- s.className="section"
- s.textContent=titulo
- grid.appendChild(s)
+/* ===== renderers (Prioridade = agrupado, Proximidade = time) ===== */
+const grid = document.getElementById('grid');
+const toggleLayoutBtn = document.getElementById('toggleLayout');
+let mode = 'group'; // 'group' -> Prioridade, 'time' -> Proximidade
 
- concursos.filter(c=>c.grupo===id).forEach(addCard)
+function clearGrid(){ grid.innerHTML = ''; }
+
+function createCardElement(c){
+  const el = document.createElement('div');
+  el.className = `card ${c.grupo}`;
+  el.setAttribute('role','button');
+  el.setAttribute('tabindex','0');
+  el.setAttribute('aria-expanded','false');
+  el.dataset.key = c.key;
+
+  el.innerHTML = `
+    <div class="card-row">
+      <div class="left">
+        <div class="name">${c.tituloFull}</div>
+        <div class="meta">${c.short}</div>
+      </div>
+      <div class="time-right">
+        <div><span class="pill ${pillClass(c.tag)}">${c.tag}</span></div>
+        <div class="tag-small" style="margin-top:6px">${formatDate(c.data)}</div>
+      </div>
+    </div>
+    <div class="desc" aria-hidden="true">${c.html}</div>
+  `;
+
+  // toggle expand / collapse
+  function toggleExpand(){
+    const desc = el.querySelector('.desc');
+    const expanded = el.getAttribute('aria-expanded') === 'true';
+    if(expanded){
+      el.setAttribute('aria-expanded','false');
+      desc.classList.remove('open');
+      desc.setAttribute('aria-hidden','true');
+    } else {
+      el.setAttribute('aria-expanded','true');
+      desc.classList.add('open');
+      desc.setAttribute('aria-hidden','false');
+    }
+  }
+
+  el.addEventListener('click', (e) => {
+    // if click on interactive child elements in future, ignore — currently safe
+    toggleExpand();
+  });
+
+  el.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(); }
+  });
+
+  return el;
 }
 
-function addCard(c){
- const el=document.createElement("div")
- el.className="card "+c.grupo
- el.innerHTML=`<div class=name>${c.nome}</div><div class=tag>${c.tag}</div>`
- el.onclick=()=>openModal(c)
- document.getElementById("grid").appendChild(el)
+function pillClass(label){
+  const map = {
+    'PREVISTO':'previsto',
+    'MÉDIO PRAZO':'previsto',
+    'PLDO':'pldo',
+    'AUTORIZADO':'autorizado',
+    'LONGO PRAZO':'longo',
+    'ESTUDO':'pldo',
+    'COMISSÃO':'pldo'
+  };
+  return map[label] || '';
 }
 
-function openModal(c){
- document.getElementById("modalContent").innerHTML=
- `<h3>${c.nome}</h3><p>${c.desc}</p>`
- document.getElementById("modal").style.display="flex"
+function renderGrouped(){
+  clearGrid();
+  for(const g of gruposOrdem){
+    const sec = document.createElement('div');
+    sec.className = 'section-title';
+    sec.textContent = g.titulo;
+    grid.appendChild(sec);
+
+    const itens = concursos.filter(c=>c.grupo===g.id);
+    if(itens.length===0){
+      const empty = document.createElement('div');
+      empty.className = 'card small';
+      empty.innerHTML = `<div class="left"><div class="name">—</div><div class="meta">Sem alvos nessa categoria</div></div>`;
+      grid.appendChild(empty);
+    }
+
+    for(const c of itens){
+      grid.appendChild(createCardElement(c));
+    }
+  }
 }
 
-function closeModal(){
- document.getElementById("modal").style.display="none"
+function renderTime(){
+  clearGrid();
+  const items = [...concursos].sort((a,b) => parseDateISO(a.data) - parseDateISO(b.data));
+  for(const c of items){
+    const el = document.createElement('div');
+    el.className = `card ${c.grupo} small`;
+    el.setAttribute('role','button');
+    el.setAttribute('tabindex','0');
+    el.dataset.key = c.key;
+
+    el.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div style="flex:1">
+          <div class="name">${c.titulo}</div>
+          <div class="meta" style="margin-top:6px">${c.short}</div>
+        </div>
+        <div style="text-align:right;min-width:84px">
+          <div style="font-size:18px;font-weight:800">⏳ ${tempoRestanteISO(c.data)}</div>
+          <div class="tag-small" style="margin-top:6px">${formatDate(c.data)}</div>
+        </div>
+      </div>
+      <div class="desc" aria-hidden="true">${c.html}</div>
+    `;
+
+    // toggle per card (same behavior as grouped)
+    const desc = el.querySelector('.desc');
+    el.addEventListener('click', ()=> {
+      const expanded = el.getAttribute('aria-expanded') === 'true';
+      if(expanded){
+        el.setAttribute('aria-expanded','false'); desc.classList.remove('open'); desc.setAttribute('aria-hidden','true');
+      } else {
+        el.setAttribute('aria-expanded','true'); desc.classList.add('open'); desc.setAttribute('aria-hidden','false');
+      }
+    });
+    el.addEventListener('keydown', (e)=> {
+      if(e.key === 'Enter' || e.key === ' ') { e.preventDefault();
+        const expanded = el.getAttribute('aria-expanded') === 'true';
+        if(expanded){ el.setAttribute('aria-expanded','false'); desc.classList.remove('open'); desc.setAttribute('aria-hidden','true'); }
+        else { el.setAttribute('aria-expanded','true'); desc.classList.add('open'); desc.setAttribute('aria-hidden','false'); }
+      }
+    });
+
+    grid.appendChild(el);
+  }
 }
 
-function toggleMode(){
- mode = mode==="prioridade" ? "lista" : "prioridade"
- event.target.textContent="Modo: "+(mode==="prioridade"?"Prioridade":"Lista")
- render()
-}
+/* toggle layout control */
+toggleLayoutBtn.addEventListener('click', () => {
+  if(mode === 'group'){
+    mode = 'time';
+    toggleLayoutBtn.textContent = 'Modo: Proximidade';
+    renderTime();
+    document.getElementById('radarWrap').classList.remove('grouped');
+    document.getElementById('radarWrap').classList.add('timeline');
+  } else {
+    mode = 'group';
+    toggleLayoutBtn.textContent = 'Modo: Prioridade';
+    renderGrouped();
+    document.getElementById('radarWrap').classList.remove('timeline');
+    document.getElementById('radarWrap').classList.add('grouped');
+  }
+});
 
-render()
+/* keyboard shortcuts: M toggles, H shows short announcement (no modal) */
+document.addEventListener('keydown',(e)=>{
+  if(e.metaKey||e.ctrlKey||e.altKey) return;
+  if(e.key.toLowerCase()==='m'){ toggleLayoutBtn.click(); }
+  if(e.key.toLowerCase()==='h'){
+    // brief inline assist: small announce element
+    const live = document.createElement('div'); live.className='sr-only'; live.setAttribute('aria-live','polite');
+    live.textContent = 'Atalhos: M alterna Prioridade/Proximidade. Clique em um card para ver a descrição.';
+    document.body.appendChild(live);
+    setTimeout(()=> live.remove(),1300);
+  }
+});
+
+/* initial render */
+renderGrouped();
+
+/* announce loaded */
+(function announce(){ const live=document.createElement('div'); live.className='sr-only'; live.setAttribute('aria-live','polite'); live.textContent='Radar carregado'; document.body.appendChild(live); setTimeout(()=> live.remove(),1200); })();
 </script>
 </body>
 </html>
