@@ -24,12 +24,22 @@
   }
 
   *{box-sizing:border-box}
-  html,body{height:100%;margin:0;padding:0;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;background:linear-gradient(180deg,var(--bg-start),var(--bg-end));color:#e6e6e6}
+  /* REMOVED height:100% to avoid embedded footer/scroll artifacts */
+  html,body{
+    margin:0;
+    padding:0;
+    font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased;
+    background:linear-gradient(180deg,var(--bg-start),var(--bg-end));
+    color:#e6e6e6;
+    overflow-x:hidden;
+  }
   html[data-embed] body{background:transparent}
 
-  /* container */
-  #radarWrap{max-width:var(--max-width);margin:12px auto;padding:0;transition:max-width var(--transition) ease}
-  #radar{background:linear-gradient(180deg,var(--bg-start),var(--bg-end));border:1px solid rgba(255,255,255,.03);padding:16px;border-radius:14px;box-shadow:0 8px 30px rgba(2,6,23,.6)}
+  /* container: slightly reduced top/bottom margin */
+  #radarWrap{max-width:var(--max-width);margin:8px auto;padding:0;transition:max-width var(--transition) ease; overflow:visible;}
+  /* reduced bottom padding to avoid internal extra scroll */
+  #radar{background:linear-gradient(180deg,var(--bg-start),var(--bg-end));border:1px solid rgba(255,255,255,.03);padding:14px 16px 12px 16px;border-radius:14px;box-shadow:0 8px 30px rgba(2,6,23,.6)}
 
   /* header */
   .header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
@@ -47,27 +57,48 @@
   .section-title.obs{background:linear-gradient(90deg, rgba(255,217,59,.06), transparent); color:var(--warn)}
   .section-title.reta{background:linear-gradient(90deg, rgba(124,199,255,.06), transparent); color:var(--info)}
 
-  /* card */
-  .card{width:100%;background:linear-gradient(145deg,#071018,var(--card-bg));border:1px solid rgba(255,255,255,.03);padding:10px 12px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;transition:transform .12s ease,box-shadow .12s ease}
+  /* card: keep compact, full width */
+  .card{width:100%;background:linear-gradient(145deg,#071018,var(--card-bg));border:1px solid rgba(255,255,255,.03);padding:10px 12px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;transition:transform .12s ease,box-shadow .12s ease;position:relative}
   .card:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(0,0,0,.6);border-color:rgba(255,255,255,.06)}
   .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:6px 0 0 6px}
   .card.alvo::before{background:var(--danger)} .card.obs::before{background:var(--warn)} .card.reta::before{background:var(--info)}
 
-  /* left: pill + title (pill before title) */
-  .card-left{display:flex;align-items:center;gap:12px;flex:1;justify-content:center}
-  .pill{font-size:12px;padding:6px 10px;border-radius:999px;background:var(--pill-bg);border:1px solid rgba(255,255,255,.04);white-space:nowrap}
+  /* LEFT: title aligned left, start position same across cards */
+  .card-left{
+    display:flex;
+    align-items:center;
+    flex:1;
+    justify-content:flex-start; /* changed: left aligned */
+    gap:12px;
+  }
+  .title-card{
+    font-weight:700;
+    font-size:14px;
+    text-align:left; /* changed: left */
+    white-space:nowrap; /* keep titles aligned in a single line */
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* RIGHT: pill aligned fully right, countdown below if shown */
+  .card-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    justify-content:flex-end; /* changed: right aligned */
+    min-width:auto;
+  }
+  .countdown{font-weight:800;font-size:16px}
+  .date-small{font-size:12px;color:var(--muted);margin-top:6px}
+
+  /* pill small adjustments */
+  .pill{font-size:12px;padding:5px 10px;border-radius:999px;background:var(--pill-bg);border:1px solid rgba(255,255,255,.04);white-space:nowrap}
   .pill.previsto{color:var(--accent-1);border-color:var(--accent-1)}
   .pill.pldo{color:var(--warn);border-color:var(--warn)}
   .pill.autorizado{color:var(--success);border-color:var(--success)}
   .pill.longo{color:var(--info);border-color:var(--info)}
-  .title-card{font-weight:700;font-size:14px;text-align:center}
 
-  /* right area: time (used in proximidade) */
-  .card-right{text-align:right;min-width:96px}
-  .countdown{font-weight:800;font-size:16px}
-  .date-small{font-size:12px;color:var(--muted);margin-top:6px}
-
-  /* modal */
+  /* modal (unchanged structurally) */
   #modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.72));z-index:9999}
   #modal.open{display:flex}
   #modalBox{background:linear-gradient(180deg,#071018,#0b131a);border-radius:14px;padding:20px;border:1px solid rgba(255,255,255,.04);width:min(920px,94%);max-height:86vh;overflow:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6)}
@@ -82,7 +113,11 @@
     #modalBox{width:96%;padding:16px}
     .card-left{gap:8px}
     .card-right{min-width:72px}
+    .title-card{font-size:13px}
   }
+
+  /* hide platform scrollbars (helps when embedded in Notion) */
+  body::-webkit-scrollbar{display:none}
 </style>
 </head>
 <body>
@@ -263,15 +298,17 @@ function createCard(c){
   el.setAttribute('tabindex','0');
   el.dataset.key = c.key;
 
-  // pill on left, title centered, date/countdown on right (used in proximity)
+  // LEFT: title (left), RIGHT: pill + countdown (right)
   el.innerHTML = `
     <div class="card-left" aria-hidden="true">
-      <div class="pill ${pillClass(c.tag)}">${c.tag}</div>
       <div class="title-card">${c.titulo}</div>
     </div>
     <div class="card-right" aria-hidden="true">
-      <div class="countdown">⏳ ${tempoRestanteISO(c.data)}</div>
-      <div class="date-small">${formatDate(c.data)}</div>
+      <div class="pill ${pillClass(c.tag)}">${c.tag}</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end">
+        <div class="countdown">⏳ ${tempoRestanteISO(c.data)}</div>
+        <div class="date-small">${formatDate(c.data)}</div>
+      </div>
     </div>
   `;
 
@@ -291,7 +328,6 @@ function renderGrouped(){
     const sec = document.createElement('div');
     sec.className = `section-title ${g.id}`;
     sec.textContent = g.titulo;
-    // color class (alvo/obs/reta) applied via CSS class names above
     grid.appendChild(sec);
 
     const itens = concursos.filter(c=>c.grupo===g.id);
@@ -303,9 +339,9 @@ function renderGrouped(){
     } else {
       for(const c of itens){
         const card = createCard(c);
-        // In "Prioridade" mode we hide the right area (countdown) visually to keep cards compact.
+        // hide countdown/right in Prioridade to keep compact (still available in DOM)
         const right = card.querySelector('.card-right');
-        if(right) right.style.display = 'none';
+        if(right) right.style.display = 'flex'; // keep shown but compact; you asked title left and pill right
         grid.appendChild(card);
       }
     }
@@ -315,7 +351,6 @@ function renderGrouped(){
 /* Renders time-ordered (Proximidade) */
 function renderTime(){
   clearGrid();
-  // sort by date ascending (closest first)
   const items = [...concursos].sort((a,b)=> {
     const A = parseDateISO(a.data) || 1e18;
     const B = parseDateISO(b.data) || 1e18;
@@ -323,9 +358,8 @@ function renderTime(){
   });
   for(const c of items){
     const card = createCard(c);
-    // in time mode show the right area (countdown) prominently
     const right = card.querySelector('.card-right');
-    if(right) right.style.display = 'block';
+    if(right) right.style.display = 'flex';
     grid.appendChild(card);
   }
 }
@@ -342,7 +376,6 @@ function openModalForKey(key){
   if(!data) return;
   lastFocused = document.activeElement;
 
-  // build modal HTML: title + full description (from data.full), optionally add metadata
   modalContent.innerHTML = `
     <h3>${data.titulo}</h3>
     <div style="color:var(--muted);font-size:13px;margin-bottom:8px">
@@ -352,26 +385,21 @@ function openModalForKey(key){
     <div>${data.full}</div>
   `;
 
-  // open
   modal.classList.add('open');
   modal.setAttribute('aria-hidden','false');
 
-  // focus management
   setTimeout(()=> {
     modalClose.focus();
     modalBox.scrollTop = 0;
   }, 80);
 }
 
-/* close modal */
 function closeModal(){
   modal.classList.remove('open');
   modal.setAttribute('aria-hidden','true');
-  // restore focus
   try{ if(lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus(); }catch(e){}
 }
 
-/* close modal when clicking overlay */
 modal.addEventListener('click', (e)=>{
   if(e.target === modal) closeModal();
 });
